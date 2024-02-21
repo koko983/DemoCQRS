@@ -7,6 +7,7 @@ namespace Demo.API.Domain.Entities.Order
     {
         public User User { get; set; }
         public DateTime DateTime { get; set; }
+        public ICollection<OrderItem> OrderItems { get; set; }
     }
 
     public class OrderItem : Entity

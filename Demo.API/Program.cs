@@ -1,6 +1,8 @@
+using Demo.API.Application.Services;
 using Demo.API.Data;
 using Demo.API.Domain.Entities.Auth;
 using Demo.API.Domain.Repositories;
+using Demo.API.Infrastructure.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +42,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
+builder.Services.AddScoped<IUnitOfWork, ApplicationDbContext>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddSingleton<ICurrentUserIdentity, CurrentUserIdentity>();
+builder.Services.AddLogging(cfg => cfg.Services.AddSingleton<ILoggerProvider, CustomLogProvider>());
+builder.Services.AddHostedService<LogQueueCleaner>();
+builder.Services.AddSingleton<ILogsQueue, LogsQueue>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
